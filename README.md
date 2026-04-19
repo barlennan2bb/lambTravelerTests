@@ -73,8 +73,10 @@ cd ~/devl2/lambTravelerTests
 ### Verify endpoints only (no redeploy)
 
 ```bash
-./deploy-all.sh --verify-only
-./verify.sh
+# Get a fresh token first (see "Get a fresh token" above), then:
+TOKEN=$TOKEN ./deploy-all.sh --verify-only
+# or
+TOKEN=$TOKEN ./verify.sh
 ```
 
 ### Auth protection test
