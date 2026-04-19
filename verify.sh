@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 # verify.sh — Verify all four Traveler endpoints on the shared POJOS API Gateway.
-# Usage: ./verify.sh
+# Usage:
+#   ./verify.sh                  # unauthenticated (expects 401 if JWT auth is on)
+#   TOKEN=eyJ... ./verify.sh     # authenticated (expects 200 + correct payload)
 # Exit code 0 = all pass. Non-zero = one or more failures.
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/config.sh"
 
+TOKEN="${TOKEN:-}"
 PASS=0
 FAIL=0
 
@@ -15,7 +18,12 @@ check_endpoint() {
   local url="${API_BASE_URL}${route}"
   local http_code body
 
-  http_code=$(curl -s -o /tmp/_verify_body.json -w "%{http_code}" "$url")
+  if [ -n "$TOKEN" ]; then
+    http_code=$(curl -s -o /tmp/_verify_body.json -w "%{http_code}" \
+      -H "Authorization: Bearer $TOKEN" "$url")
+  else
+    http_code=$(curl -s -o /tmp/_verify_body.json -w "%{http_code}" "$url")
+  fi
   body=$(cat /tmp/_verify_body.json)
 
   local status service
